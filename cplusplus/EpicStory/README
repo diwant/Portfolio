@@ -1,0 +1,26 @@
+EpicStory
+2010.08.12
+
+This is a video game code written to help teens learn game programming.  The teens had varying backgrounds in development from some Java to none at all.  In one week, they were expected to pick up basic C++ programming as well as game programming mechanics.
+
+= My code vs students code =
+I wrote the basic framework to pull things together so the students could get full games going within the week.  The important framework code is: 
+* DMAGame.h, DMAGame.cpp
+* DMASprite.h, DMASprite.cpp
+* DMASpriteGroup.h, DMASpriteGroup.cpp
+
+
+The below files were written by student pairs to further their grasp of game and C++ code.  They combined their work to learn how to use and depend on other's code as well.
+* Animation.h, Animation.cpp
+* Heart.h, Heart.cpp
+* Particle.h, Particle.cpp
+* ParticleGun.h, ParticleGun.cpp
+* Road.h, Road.cpp
+* Scoreboard.h, Scoreboard.cpp
+* Score.h, Score.cpp
+* Skeleton.h, Skeleton.cpp
+* Sky.h, Sky.cpp
+* StatsBox.h, StatsBox.cpp
+* Trees.h, Trees.cpp
+
+
