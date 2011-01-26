@@ -1,0 +1,112 @@
+<?php
+// $Id$
+
+define('POPCIRCLE_SQL_TOUCH_INSERT', "INSERT INTO {popcircle_touch}(contactid, touchedOn) VALUES ('%s', NOW())"); 
+define('POPCIRCLE_SQL_TOUCH_SELECT_RECENT', "SELECT * FROM {popcircle_touch} WHERE contactid='%s' ORDER BY touchedOn DESC LIMIT 1");
+
+
+/**
+* Display help and module information
+* @param path which path of the site we're displaying help
+* @param arg array that holds the current path as would be returned from arg() function
+* @return help text for the path
+*/
+function popcircle_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#popcircle":
+      $output = '<p>'.  t("Functionality related to PoP Circle") .'</p>';
+      break;
+  }
+  return $output;
+} // function onthisdate_help
+
+/**
+* Modify the page to go to after login
+* @see hook_form_alter
+*/
+function popcircle_form_alter(&$form, $form_state, $form_id) {
+	if( !isset($form_id) ){
+		return;
+	}
+	if( $form_id=="contact_node_form" ){
+		$form['#attributes'] = array('class' => 'contact-node-form');
+	}
+	if( $form_id=="user_login" ){
+		// lets change the destination of the login form to viewCircle
+		$form['#redirect']='viewCircle';
+	}
+}
+
+// Non Drupal functions
+/**
+* Adds a correspondence with a contact
+* @param contactid id of contact to set as contacted recently
+* @return TRUE on success
+*/
+function popcircle_setContactedRecently($contactid) {
+	if( $contactid== NULL || $contactid <= 0 ){
+		return FALSE;
+	}
+	$result = db_query(POPCIRCLE_SQL_TOUCH_INSERT, $contactid);
+	if( db_affected_rows() == 1 ){
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/**
+* Get how urgent it is to contact a person
+* @param contactid id of contact to get contact
+* @return a number between 0 and 1 where 0 is no urgency and 1 is max urgency.  0 is returned on error also.
+*/
+function popcircle_getContactUrgency($contactid) {
+	if( $contactid== NULL || $contactid <= 0 ){
+		return 0;
+	}
+	$result = db_query(POPCIRCLE_SQL_TOUCH_SELECT_RECENT, $contactid);
+	if( $row = db_fetch_array($result) ) {
+		
+		$seconds = strtotime('now') - strtotime($row['touchedOn']);
+		
+		$contact = node_load($contactid);
+		$closeness = check_plain($contact->field_closeness[0]['value']);
+		$MAX_SECONDS = popcircle_INTERNAL_getMSForMaxUrgency($closeness);
+		$urgency = popcircle_INTERNAL_getUrgency($seconds, $MAX_SECONDS);
+		//print "<p>contact=".$contact->title." // closeness=$closeness // maxsec=$MAX_SECONDS // seconds=$seconds // urgency=$urgency</p>";
+		return $urgency;
+	}
+	else {
+		// no prior contact with this person logged in our system.  It seems the contact is a new addition.  Let's log it for today and return 0
+		popcircle_setContactedRecently($contactid);
+		return 0;
+	}
+}
+
+/**
+* Get the urgency level of seconds in MAX_SECONDS
+* @param seconds secondseconds to get for urgency
+* @param MAX_SECONDS secondseconds that should return maximum urgency.
+* @return a number between 0 and 1 inclusive that is the urgency of contact
+*/
+function popcircle_INTERNAL_getUrgency($seconds, $MAX_SECONDS) {
+	return $seconds/$MAX_SECONDS;
+
+}
+
+/**
+* Converts closeness to a secondsecond max (so closer contacts will have a lower secondsecond max
+* The algorithm uses linear interpolation with (x1,y1)=(1,1*24*3600) and (x2,y2)=(1000,365*24*3600)
+*
+* @param closeness closeness to convert to secondsecond max
+* @return secondseconds for maximum urgency.
+*/function popcircle_INTERNAL_getMSForMaxUrgency($closeness) {
+	$x1 = 1;
+	$y1 = 1*24*3600;
+	$x2 = 1000;
+	$y2 = 365*24*3600;
+	$m = ($y2-$y1)/($x2-$x1);
+	$b = $y1 - $m*$x1;
+	return $m*$closeness+$b;
+}
+?>

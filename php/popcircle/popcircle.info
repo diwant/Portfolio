@@ -1,0 +1,7 @@
+; $Id$
+name = PoP Circle > Touch
+description = Functionality for the PoP circle tool related to touch (recent contact) with contacts
+core = 6.x
+package = PoP
+
+

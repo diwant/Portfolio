@@ -1,0 +1,45 @@
+<?php
+// $Id: monetapp.install,v 1.0 2007/11/01 
+
+function popcircle_schema() {
+  $schema['popcircle_touch'] = array(
+  	'description' => 'Logs when a contact was last touched (contacted)',
+  	'fields' => array(
+	  	'touchid' => array(
+	  		'description' => 'auto incremented id of column',
+	  		'type'=>'serial',
+	  		'size'=>'big',
+	  		'not null' => TRUE,
+	  		'unsigned' => TRUE,
+	  	),
+	  	'contactid'=>array(
+	  		'description' => 'id of contact that was touched',
+	  		'type'=>'int',
+	  		'size'=>'medium',
+	  		'not null' => TRUE,
+	  		'unsigned' => TRUE,
+	  	),
+	  	'touchedOn'=>array(
+	  		'description' => 'date of touch',
+	  		'type'=>'datetime',
+	  		'size'=>'normal',
+	  		'not null' => TRUE,
+	  	)
+	 ),
+	 'primary key' => array('touchid'), 
+	 'indexes' => array(
+	 	'recentTouch' => array('contactid', 'touchedOn'),
+	 ),
+  );
+  return $schema;
+}
+
+function popcircle_install() {
+  // Create my tables.
+  drupal_install_schema('popcircle');
+}
+
+function popcircle_uninstall() {
+  // Drop my tables.
+  drupal_uninstall_schema('popcircle');
+}
