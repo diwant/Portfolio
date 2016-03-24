@@ -1,4 +1,4 @@
-This PHP/HTML/CSS/jQuery/Javascript code that powers diwantvaidya.com, so you can look at this code and compare it with what you see there.
+This was the PHP/HTML/CSS/jQuery/Javascript code that powered diwantvaidya.com
 
 Structure:
 	kohana - contains PHP files, which generate HTML
